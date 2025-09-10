@@ -2,13 +2,14 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Deny all access by default for security
+    // By default, deny all access to all documents.
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Allow reading and creating documents in the 'lessons' collection,
-    // but do not allow updates or deletes.
+    // Allow anyone to read documents from the 'lessons' collection.
+    // Allow anyone to create new documents in the 'lessons' collection.
+    // Disallow updating or deleting existing documents.
     match /lessons/{lessonId} {
       allow read, create: if true;
       allow update, delete: if false;
