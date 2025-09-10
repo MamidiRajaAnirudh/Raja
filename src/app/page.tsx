@@ -1,3 +1,9 @@
+import { EduPromptClient } from '@/components/app/edu-prompt-client';
+
 export default function Home() {
-  return <></>;
+  return (
+    <main>
+      <EduPromptClient />
+    </main>
+  );
 }
