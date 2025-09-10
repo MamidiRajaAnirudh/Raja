@@ -2,16 +2,17 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // By default, deny all access to all documents.
+    // Allow anyone to read any document in any collection for simplicity.
+    // For a production app, you'd want to restrict this further.
     match /{document=**} {
-      allow read, write: if false;
+      allow read: if true;
     }
 
-    // Allow anyone to read documents from the 'lessons' collection.
-    // Allow anyone to create new documents in the 'lessons' collection.
-    // Disallow updating or deleting existing documents.
+    // Allow anyone to create a document in the 'lessons' collection.
+    // This is required for the app to save new lessons.
     match /lessons/{lessonId} {
-      allow read, create: if true;
+      allow create: if true;
+      // Explicitly deny updates or deletes on existing lessons to protect data.
       allow update, delete: if false;
     }
   }
