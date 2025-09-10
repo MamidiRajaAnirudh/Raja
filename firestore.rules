@@ -2,25 +2,17 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Default to denying all access to all documents.
+    // Default to secure: deny all reads and writes
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Rules for the 'lessons' collection
+    // Allow anyone to create and read documents in the 'lessons' collection.
+    // This is suitable for this public-facing educational app.
+    // Updates and deletes are disallowed to protect content.
     match /lessons/{lessonId} {
-      // Anyone can create a new lesson document.
-      // We validate that the incoming data has the required fields and types.
-      allow create: if request.resource.data.topic is string &&
-                       request.resource.data.explanation is string &&
-                       request.resource.data.quiz is string &&
-                       request.resource.data.createdAt == request.time;
-
-      // Anyone can read lesson documents.
       allow read: if true;
-
-      // No one can update or delete lesson documents.
+      allow create: if true;
       allow update, delete: if false;
     }
   }
