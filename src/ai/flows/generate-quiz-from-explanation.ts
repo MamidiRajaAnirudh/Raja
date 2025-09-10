@@ -30,9 +30,22 @@ export async function generateQuizFromExplanation(
 const prompt = ai.definePrompt({
   name: 'generateQuizFromExplanationPrompt',
   input: {schema: GenerateQuizFromExplanationInputSchema},
-  output: {schema: GenerateQuizFromExplanationOutputSchema},
+  output: {
+    format: 'json',
+    schema: z.object({
+      questions: z.array(z.object({
+        id: z.number(),
+        type: z.enum(['multiple-choice', 'true-false', 'fill-in-the-blank']),
+        questionText: z.string(),
+        options: z.array(z.string()).optional(),
+        correctAnswer: z.string(),
+      }))
+    })
+  },
   prompt: `You are a quiz generator. Generate a quiz with 3-5 questions based on the following explanation. The quiz should include multiple choice, true/false, and fill-in-the-blank questions.
-Explanation: {{{explanation}}}`,
+Explanation: {{{explanation}}}
+
+Return the quiz as a JSON object with a "questions" array. Each question should have an id, type, questionText, options (for multiple-choice and true-false), and correctAnswer.`,
 });
 
 const generateQuizFromExplanationFlow = ai.defineFlow(
@@ -43,6 +56,6 @@ const generateQuizFromExplanationFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    return { quiz: JSON.stringify(output) };
   }
 );
