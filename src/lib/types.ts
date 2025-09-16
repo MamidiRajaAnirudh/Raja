@@ -23,4 +23,5 @@ export type Lesson = {
   explanation?: string;
   quiz?: string;
   createdAt: string;
+  archived?: boolean;
 };

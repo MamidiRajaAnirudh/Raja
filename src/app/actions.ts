@@ -5,7 +5,7 @@ import { generateTopicExplanation } from '@/ai/flows/generate-topic-explanation'
 import { generateQuizFromExplanation } from '@/ai/flows/generate-quiz-from-explanation';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, getDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, getDoc, doc, updateDoc, where } from 'firebase/firestore';
 import type { Lesson } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 
@@ -56,6 +56,7 @@ export async function generateExplanationAndQuiz(
       explanation,
       quiz,
       createdAt: serverTimestamp(),
+      archived: false,
     });
 
     revalidatePath('/history');
@@ -78,7 +79,7 @@ export async function generateExplanationAndQuiz(
 
 export async function getLessonHistory(): Promise<Lesson[]> {
     const lessonsCol = collection(db, 'lessons');
-    const q = query(lessonsCol, orderBy('createdAt', 'desc'));
+    const q = query(lessonsCol, where('archived', '!=', true), orderBy('createdAt', 'desc'));
     const lessonSnapshot = await getDocs(q);
     const lessonList = lessonSnapshot.docs.map(doc => {
         const data = doc.data();
@@ -102,10 +103,13 @@ export async function getLesson(id: string): Promise<Lesson | null> {
         }
 
         const data = lessonSnap.data();
+        if (data.archived) {
+          return null;
+        }
+
         return {
             id: lessonSnap.id,
             topic: data.topic,
-
             explanation: data.explanation,
             quiz: data.quiz,
             createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
@@ -116,22 +120,20 @@ export async function getLesson(id: string): Promise<Lesson | null> {
     }
 }
 
-export async function deleteLesson(id: string): Promise<{ status: 'success' | 'error', message: string }> {
+export async function archiveLesson(id: string): Promise<{ status: 'success' | 'error', message: string }> {
     try {
         const lessonRef = doc(db, 'lessons', id);
-        await deleteDoc(lessonRef);
+        await updateDoc(lessonRef, { archived: true });
 
         revalidatePath('/history');
-        revalidatePath('/');
-
 
         return {
             status: 'success',
-            message: 'Lesson deleted successfully.'
+            message: 'Lesson archived successfully.'
         };
     } catch (error) {
-        console.error("Error deleting lesson:", error);
-        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred while deleting the lesson.';
+        console.error("Error archiving lesson:", error);
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred while archiving the lesson.';
         return {
             status: 'error',
             message: errorMessage,

@@ -15,7 +15,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { deleteLesson } from '@/app/actions';
+import { archiveLesson } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface DeleteLessonButtonProps {
@@ -26,18 +26,18 @@ export function DeleteLessonButton({ lessonId }: DeleteLessonButtonProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
-  const handleDelete = () => {
+  const handleArchive = () => {
     startTransition(async () => {
-      const result = await deleteLesson(lessonId);
+      const result = await archiveLesson(lessonId);
       if (result.status === 'success') {
         toast({
-          title: 'Lesson Deleted',
-          description: 'The lesson has been successfully removed.',
+          title: 'Lesson Archived',
+          description: 'The lesson has been successfully removed from your history.',
         });
       } else {
         toast({
           variant: 'destructive',
-          title: 'Deletion Failed',
+          title: 'Archiving Failed',
           description: result.message,
         });
       }
@@ -49,25 +49,24 @@ export function DeleteLessonButton({ lessonId }: DeleteLessonButtonProps) {
       <AlertDialogTrigger asChild>
         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
           <Trash2 className="h-4 w-4" />
-          <span className="sr-only">Delete Lesson</span>
+          <span className="sr-only">Archive Lesson</span>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>Are you sure you want to archive this lesson?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the lesson
-            from the database.
+            This will remove the lesson from your history view. This action can be reversed by your database administrator.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleDelete}
+            onClick={handleArchive}
             disabled={isPending}
             className="bg-destructive hover:bg-destructive/90"
           >
-            {isPending ? 'Deleting...' : 'Delete'}
+            {isPending ? 'Archiving...' : 'Archive'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

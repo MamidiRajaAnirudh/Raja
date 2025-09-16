@@ -1,17 +1,17 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Default to denying all access to prevent unauthorized reads/writes
+    // Default to denying all access
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Allow clients to create, read, and delete documents in the 'lessons' collection.
-    // Updates are disallowed to prevent modification of past lessons.
+    // Allow clients to create, read, and update documents in the 'lessons' collection.
+    // Deleting is disallowed by the default rule.
     match /lessons/{lessonId} {
-      allow read, create, delete: if true;
-      allow update: if false;
+      allow read, create, update: if true;
     }
   }
 }
