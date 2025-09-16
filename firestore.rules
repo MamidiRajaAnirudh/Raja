@@ -1,4 +1,3 @@
-
 rules_version = '2';
 
 service cloud.firestore {
@@ -8,8 +7,8 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Allow clients to create, read, and delete documents in the 'lessons' collection.
-    // Disallow updates to prevent modification of existing content.
+    // Allow clients to create, read, and delete documents in the 'lessons' collection,
+    // but not update them.
     match /lessons/{lessonId} {
       allow read, create, delete: if true;
       allow update: if false;
