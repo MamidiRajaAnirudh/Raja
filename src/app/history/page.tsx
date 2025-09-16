@@ -1,11 +1,12 @@
 
 import { getLessonHistory } from '@/app/actions';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { BookMarked, Home, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import { DeleteLessonButton } from '@/components/app/delete-lesson-button';
 
 export default async function HistoryPage() {
   const lessons = await getLessonHistory();
@@ -16,7 +17,7 @@ export default async function HistoryPage() {
         <div className="absolute top-0 left-0">
             <Button asChild variant="outline">
                 <Link href="/">
-                <Home />
+                <Home className="mr-2"/>
                 Home
                 </Link>
             </Button>
@@ -48,13 +49,14 @@ export default async function HistoryPage() {
                     <TableCell className="hidden sm:table-cell">
                       {format(new Date(lesson.createdAt), "PPP")}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right space-x-2">
                        <Button asChild variant="ghost" size="icon">
                         <Link href={`/lesson/${lesson.id}`}>
                            <Eye className="h-4 w-4" />
                            <span className="sr-only">View Lesson</span>
                          </Link>
                        </Button>
+                       <DeleteLessonButton lessonId={lesson.id} />
                     </TableCell>
                   </TableRow>
                 ))}

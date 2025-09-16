@@ -5,8 +5,9 @@ import { generateTopicExplanation } from '@/ai/flows/generate-topic-explanation'
 import { generateQuizFromExplanation } from '@/ai/flows/generate-quiz-from-explanation';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, getDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, getDoc, doc, deleteDoc } from 'firebase/firestore';
 import type { Lesson } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
 
 const formSchema = z.object({
   topic: z.string().min(2, "Topic must be at least 2 characters.").max(100, "Topic must be 100 characters or less."),
@@ -50,12 +51,14 @@ export async function generateExplanationAndQuiz(
     const quiz = quizResult.quiz;
 
     // Save to Firestore
-    await addDoc(collection(db, "lessons"), {
+    const newLesson = await addDoc(collection(db, "lessons"), {
       topic,
       explanation,
       quiz,
       createdAt: serverTimestamp(),
     });
+
+    revalidatePath('/history');
 
     return {
       status: 'success',
@@ -110,5 +113,26 @@ export async function getLesson(id: string): Promise<Lesson | null> {
     } catch (error) {
         console.error("Error fetching lesson:", error);
         return null;
+    }
+}
+
+export async function deleteLesson(id: string): Promise<{ status: 'success' | 'error', message: string }> {
+    try {
+        const lessonRef = doc(db, 'lessons', id);
+        await deleteDoc(lessonRef);
+
+        revalidatePath('/history');
+
+        return {
+            status: 'success',
+            message: 'Lesson deleted successfully.'
+        };
+    } catch (error) {
+        console.error("Error deleting lesson:", error);
+        const errorMessage = error instanceof Error ? e.message : 'An unexpected error occurred while deleting the lesson.';
+        return {
+            status: 'error',
+            message: errorMessage,
+        };
     }
 }
