@@ -129,7 +129,7 @@ export async function deleteLesson(id: string): Promise<{ status: 'success' | 'e
         };
     } catch (error) {
         console.error("Error deleting lesson:", error);
-        const errorMessage = error instanceof Error ? e.message : 'An unexpected error occurred while deleting the lesson.';
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred while deleting the lesson.';
         return {
             status: 'error',
             message: errorMessage,
