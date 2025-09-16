@@ -1,3 +1,4 @@
+
 export type QuestionType = 'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'unknown';
 
 export interface Question {
@@ -14,4 +15,12 @@ export interface Quiz {
 
 export type UserAnswers = {
   [key: string]: string;
+};
+
+export type Lesson = {
+  id: string;
+  topic: string;
+  explanation?: string;
+  quiz?: string;
+  createdAt: string;
 };

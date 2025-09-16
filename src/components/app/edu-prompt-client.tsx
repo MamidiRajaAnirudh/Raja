@@ -1,7 +1,9 @@
+
 'use client';
 
 import { useState, useRef, useTransition } from 'react';
-import { Lightbulb, Send } from 'lucide-react';
+import { Lightbulb, Send, BookMarked } from 'lucide-react';
+import Link from 'next/link';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -73,7 +75,15 @@ export function EduPromptClient() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
-      <header className="text-center mb-10">
+      <header className="text-center mb-10 relative">
+        <div className="absolute top-0 right-0">
+          <Button asChild variant="outline">
+            <Link href="/history">
+              <BookMarked />
+              History
+            </Link>
+          </Button>
+        </div>
         <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tight text-primary">
           EduPrompt
         </h1>

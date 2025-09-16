@@ -5,7 +5,8 @@ import { generateTopicExplanation } from '@/ai/flows/generate-topic-explanation'
 import { generateQuizFromExplanation } from '@/ai/flows/generate-quiz-from-explanation';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, getDoc, doc } from 'firebase/firestore';
+import type { Lesson } from '@/lib/types';
 
 const formSchema = z.object({
   topic: z.string().min(2, "Topic must be at least 2 characters.").max(100, "Topic must be 100 characters or less."),
@@ -70,4 +71,44 @@ export async function generateExplanationAndQuiz(
       message: errorMessage,
     };
   }
+}
+
+export async function getLessonHistory(): Promise<Lesson[]> {
+    const lessonsCol = collection(db, 'lessons');
+    const q = query(lessonsCol, orderBy('createdAt', 'desc'));
+    const lessonSnapshot = await getDocs(q);
+    const lessonList = lessonSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            topic: data.topic,
+            // Convert Firestore Timestamp to a serializable format (ISO string)
+            createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+        };
+    });
+    return lessonList;
+}
+
+export async function getLesson(id: string): Promise<Lesson | null> {
+    try {
+        const lessonRef = doc(db, 'lessons', id);
+        const lessonSnap = await getDoc(lessonRef);
+
+        if (!lessonSnap.exists()) {
+            return null;
+        }
+
+        const data = lessonSnap.data();
+        return {
+            id: lessonSnap.id,
+            topic: data.topic,
+
+            explanation: data.explanation,
+            quiz: data.quiz,
+            createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+        };
+    } catch (error) {
+        console.error("Error fetching lesson:", error);
+        return null;
+    }
 }
