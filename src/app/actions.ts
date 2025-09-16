@@ -79,17 +79,21 @@ export async function generateExplanationAndQuiz(
 
 export async function getLessonHistory(): Promise<Lesson[]> {
     const lessonsCol = collection(db, 'lessons');
-    const q = query(lessonsCol, where('archived', '==', false), orderBy('createdAt', 'desc'));
+    // Remove the orderBy clause to avoid needing a composite index
+    const q = query(lessonsCol, where('archived', '==', false));
     const lessonSnapshot = await getDocs(q);
     const lessonList = lessonSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
             id: doc.id,
             topic: data.topic,
-            // Convert Firestore Timestamp to a serializable format (ISO string)
             createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
         };
     });
+
+    // Sort the lessons by date in the application code
+    lessonList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
     return lessonList;
 }
 
@@ -103,6 +107,7 @@ export async function getLesson(id: string): Promise<Lesson | null> {
         }
 
         const data = lessonSnap.data();
+        // Do not return lesson if it is archived
         if (data.archived) {
           return null;
         }
@@ -126,6 +131,7 @@ export async function archiveLesson(id: string): Promise<{ status: 'success' | '
         await updateDoc(lessonRef, { archived: true });
 
         revalidatePath('/history');
+        revalidatePath(`/lesson/${id}`); // Revalidate the specific lesson page
 
         return {
             status: 'success',
