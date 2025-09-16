@@ -79,7 +79,7 @@ export async function generateExplanationAndQuiz(
 
 export async function getLessonHistory(): Promise<Lesson[]> {
     const lessonsCol = collection(db, 'lessons');
-    const q = query(lessonsCol, where('archived', '!=', true), orderBy('createdAt', 'desc'));
+    const q = query(lessonsCol, where('archived', '==', false), orderBy('createdAt', 'desc'));
     const lessonSnapshot = await getDocs(q);
     const lessonList = lessonSnapshot.docs.map(doc => {
         const data = doc.data();
