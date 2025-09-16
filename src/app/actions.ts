@@ -51,7 +51,7 @@ export async function generateExplanationAndQuiz(
     const quiz = quizResult.quiz;
 
     // Save to Firestore
-    const newLesson = await addDoc(collection(db, "lessons"), {
+    await addDoc(collection(db, "lessons"), {
       topic,
       explanation,
       quiz,
@@ -122,6 +122,8 @@ export async function deleteLesson(id: string): Promise<{ status: 'success' | 'e
         await deleteDoc(lessonRef);
 
         revalidatePath('/history');
+        revalidatePath('/');
+
 
         return {
             status: 'success',
