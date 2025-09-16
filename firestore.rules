@@ -7,8 +7,8 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Allow clients to create, read, and delete documents in the 'lessons' collection,
-    // but not update them.
+    // Allow clients to create, read, and delete documents in the 'lessons' collection.
+    // Updates are disallowed to prevent modification of past lessons.
     match /lessons/{lessonId} {
       allow read, create, delete: if true;
       allow update: if false;
