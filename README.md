@@ -76,4 +76,4 @@ Secure Firestore rules have been defined in `firestore.rules`. Before running th
     Make sure your project is correctly configured in your `.firebaserc` file, then run:
     ```bash
     firebase deploy --only firestore
-    ```
+    ```# edu-promt
