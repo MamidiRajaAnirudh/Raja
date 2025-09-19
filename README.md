@@ -1,3 +1,5 @@
+# edu-promt
+
 # EduPrompt: Learn & Quiz
 
 EduPrompt is a web application that leverages the power of AI to create a dynamic and interactive learning experience. Users can enter any topic they wish to learn about, and EduPrompt will generate a simplified, easy-to-understand explanation along with a multi-format quiz to test their knowledge.
